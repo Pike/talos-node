@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Graph comparison</title>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="graph-code.js"></script>
+</head>
+
+<body>
+<h1>Graph comparison</h1>
+<div id="chart_div" style="overflow:scroll">...</div>
+<p id="details" style="height:4em"></p>
+<script>
+rows = ([{{async}}
+var self = this;
+this.graphloader.waitForLoad(function(data) {
+  self.data = data;
+  var rowstrings = [];
+  function genRow(id, isRev, val) {
+    return '[' + id + ', ' + (isRev ?
+      ('null, ' + Number(val).toFixed(2)) :
+      (Number(val).toFixed(2) + ', null')) + ']';
+  }
+
+  data.items.forEach(function(item) {
+    item.rev.forEach(function(val){rowstrings.push(genRow(item.id,
+      true, val/item.avg))});
+    item.references.forEach(function(val){rowstrings.push(genRow(item.id,
+      false, val/item.avg))});
+    });
+  res.write(rowstrings.join(',\n  '));
+  res.end();
+});
+{{/}}]);
+items = {{}}res.write(JSON.stringify(this.data.items));{{/}};
+</script>
+<a href="#" onclick="$('#missing').toggle('slow');return false;">Missing tests for revision:</a>
+<div id="missing" style="display:none;font-size:small;overflow:scroll;height:15em;"><table>{{}}
+var tname = null;
+this.data.missing.forEach(function(t) {
+  var testname = t[0], platform = t[1];
+  if (tname != testname) {
+    if (tname !== null) {res.write('</td></tr>\n');}
+    res.write('<tr><td>' + testname + '</td><td>');
+  }
+  res.write(platform + " ");
+  tname = testname;
+});
+if (this.data.missing.length){res.write('</td></tr>');};
+{{/}}</table>
+</div>
+</body>
+</html>

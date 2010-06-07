@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Looking for try server details</title>
+</head>
+
+<body>
+<p>Looking for the parents of
+<code>{{}}res.write(this.try_rev);{{/}}</code> in <code>{{}}res.write(this.repo){{/}}.</code></p>
+<pre>{{async}}
+function onProgress(){res.write('.');}
+var self = this;
+function storeRefPushes(foundPush) {
+  self.foundPush = foundPush;
+  self.foundPushID = Number(foundPush);
+  res.end();
+}
+ParentFinder('try', this.repo, this.try_rev, onProgress, storeRefPushes);
+{{/}}</pre>
+<p>found push {{}}res.write(this.foundPush);{{/}}, loading
+references</p>
+<pre>{{async}}
+function onProgress(){res.write('.');}
+var _p = {startID: this.foundPushID - 10,
+          endID: this.foundPushID + 5};
+var try_rev = this.try_rev;
+hg.push(this.repo, onProgress, function(pushes) {
+    var pushIDs = [], baserevs=[];
+    for (var k in pushes){pushIDs.push(Number(k))}; pushIDs.sort();
+    for (var i = pushIDs.length-1, imin = Math.max(0, pushIDs.length-11);
+         i>=imin; --i) {
+      var p = pushes[String(pushIDs[i])];
+      baserevs.push(p.changesets[p.changesets.length-1].substring(0,12));
+    }
+    var q = querystring.stringify({
+      base_rev:baserevs,
+          try_rev:try_rev
+          },'&','=', false);
+    res.write('</pre>\n<p>Load the <a href="graph?' + q + '">graphs</a>.</p>\n</body>\n</html>\n');
+    sys.puts('findbase load done')
+    res.end();
+  }, _p);
+{{/}}</pre>
+</body>
+</html>

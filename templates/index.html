@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Graph Comparison</title>
+</head>
+
+<body>
+<h1>Graph Comparison</h1>
+<p>Either use a given set of revisions,</p>
+<form method="GET" action="show_graphs">
+<input name="revision"><br>
+<input name="reference">
+</form>
+<p>or select a try-server push...</p>
+<pre id="progress">{{}}{{/}}</pre>
+<form id="changesets" action="findbase" method="GET">
+<ol id="pushes">{{async}}
+  hg.push('try', function() {res.write('.')}, function(_pushes) {
+      res.write('</pre>\n<form id="changesets" action="findbase" method="GET">\n\
+<ol id="pushes">\n\
+');
+      var k, revs=[]; for (k in _pushes) {revs.push(k);};revs.sort();
+      for (var i=revs.length-1; i>=0; --i) {
+        k = revs[i];
+        var tip = _pushes[k].changesets[_pushes[k].changesets.length-1];
+        tip = tip.substring(0,12);
+        res.write('<li class="push" id="push_' + k + '">\
+<input type="radio" name="try_rev" value="' + tip + '"> '+_pushes[k].user+'\
+</li>\n\
+');
+      }
+      res.end();
+   });
+{{/}}
+</ol>
+with baseline results from
+<ul id="trees">
+  <li><input type="radio" name="repo"
+  value="mozilla-central">mozilla-central</li>
+</ul>
+<input type="submit" value="Go&hellip;">
+</form>
+</body>
+</html>
+{{}}{{/}}

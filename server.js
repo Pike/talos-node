@@ -84,6 +84,12 @@ function graph_code_js(res, params) {
 }
 
 
+function four_o_four(res, params) {
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.write("File not found");
+}
+
+
 function urlmapper(req, res) {
   var _url = url.parse(req.url, true);
   sys.puts(_url.pathname);
